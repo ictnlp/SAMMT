@@ -7,9 +7,13 @@ from transformers import CLIPTextModel, CLIPTokenizer
 from diffusers import AutoencoderKL, UNet2DConditionModel, PNDMScheduler
 import numpy as np
 from diffusers import LMSDiscreteScheduler
+import sys
 
-torch_device = "cuda:3" if torch.cuda.is_available() else "cpu"
-split = 'train'
+args = sys.argv
+split=args[1]
+
+torch_device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
 dic = {
     'train': 'flickr30k-images',
     'valid': 'flickr30k-images',
@@ -34,20 +38,14 @@ imagenamepth = join('multi30k-dataset/data/task1/image_splits',dic1[split] + '.t
 textpth = join('multi30k-dataset/data/task1/tok', dic1[split] + '.lc.norm.tok.en')
 
 # 1. Load the autoencoder model which will be used to decode the latents into image space.
-vae = AutoencoderKL.from_pretrained(
-    "/root/.cache/huggingface/hub/models--CompVis--stable-diffusion-v1-4/snapshots/59ec6bdf37d6279d3c0faf36e89ff1aa34f7ebf4",
-    subfolder="vae")  # CompVis/stable-diffusion-v1-4
+vae = AutoencoderKL.from_pretrained("CompVis/stable-diffusion-v1-4",subfolder="vae")  # The model can be loaded from the local path
 
 # 2. Load the tokenizer and text encoder to tokenize and encode the text.
-tokenizer = CLIPTokenizer.from_pretrained(
-    "/root/.cache/huggingface/hub/models--openai--clip-vit-large-patch14/snapshots/8d052a0f05efbaefbc9e8786ba291cfdf93e5bff") # openai/clip-vit-large-patch14
-text_encoder = CLIPTextModel.from_pretrained(
-    "/root/.cache/huggingface/hub/models--openai--clip-vit-large-patch14/snapshots/8d052a0f05efbaefbc9e8786ba291cfdf93e5bff")  # openai/clip-vit-large-patch14
+tokenizer = CLIPTokenizer.from_pretrained("openai/clip-vit-large-patch14")
+text_encoder = CLIPTextModel.from_pretrained("openai/clip-vit-large-patch14")
 
 # 3. The UNet model for generating the latents.
-unet = UNet2DConditionModel.from_pretrained(
-    "/root/.cache/huggingface/hub/models--CompVis--stable-diffusion-v1-4/snapshots/59ec6bdf37d6279d3c0faf36e89ff1aa34f7ebf4",
-    subfolder="unet") # "CompVis/stable-diffusion-v1-4"
+unet = UNet2DConditionModel.from_pretrained("CompVis/stable-diffusion-v1-4",subfolder="unet")
 
 scheduler = LMSDiscreteScheduler(beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear",num_train_timesteps=1000)
 
@@ -76,7 +74,7 @@ def main():
     with open(textpth, 'r', encoding='utf-8') as src_file:
         text_inputs = list(map(str.strip, src_file.readlines()))
     chunk_size = 1
-    for chunk_id in range(2608, 7000):  # ,len(name_inputs) // chunk_size + 1
+    for chunk_id in range(len(name_inputs) // chunk_size + 1):
         begin = chunk_id * chunk_size
         end = min((chunk_id + 1) * chunk_size, len(name_inputs))
         for idx in range(begin, end):

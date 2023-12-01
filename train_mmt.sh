@@ -4,8 +4,6 @@ set -e
 device=0
 task=multi30k-en2de
 image_feat=clip  #vit_tiny_patch16_384
-mask_data=mask0
-tag=$image_feat/$image_feat-$mask_data
 date=$(date '+%m%d%H%M')
 save_dir=checkpoints/$task/$image_feat/${date}_0.5klmulti_32_sd_ran0+0.1beforeimgotlossvishal_release
 
@@ -53,9 +51,6 @@ if [ $image_feat == "clip" ]; then
 fi
 
 cp ${BASH_SOURCE[0]} $save_dir/train.sh
-cp fairseq/models/multimodal_transformer.py $save_dir/multimodal_transformer.py
-cp fairseq/tasks/multimodal_translation.py $save_dir/multimodal_translation.py
-cp fairseq/criterions/label_smoothed_cross_entropy.py $save_dir/label_smoothed_cross_entropy.py
 
 gpu_num=`echo "$device" | awk '{split($0,arr,",");print length(arr)}'`
 

@@ -9,8 +9,12 @@ from PIL import Image
 import timm
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
+import sys
 
-split = 'train'
+args = sys.argv
+split=args[1]
+type=args[2]
+
 dic = {
     'train': 'flickr30k-images',
     'valid': 'flickr30k-images',
@@ -25,9 +29,14 @@ dic1 = {
     'test1': 'test_2017_flickr',
     'test2': 'test_2017_mscoco'
 }
-imagepth = join('flickr30k', dic[split])
+if type=='synth':
+    imagepth = join('flickr30k-sdimages', dic[split])
+else:
+    imagepth = join('flickr30k', dic[split])
 imagenamepth = join('multi30k-dataset/data/task1/image_splits',dic1[split] + '.txt')
 savedir = 'data/clip'
+if not os.path.exists(savedir ):
+    os.makedirs(savedir )
 
 clipmodel, preprocess = clip.load("ViT-B/32")
 clipmodel.cuda().eval()
@@ -64,7 +73,7 @@ def main():
         all_features = torch.from_numpy(all_features).float()
         all_features = all_features.view(all_features.size(0), all_features.size(1), all_features.size(2))
         print(all_features.shape)
-        torch.save(all_features, str(split) + '_clip_.pth')
+        torch.save(all_features, str(type)+'_'+str(split) + '.pth')
         for i in range(num):
             path = join(savedir, 'clip_' + str(split) + '_' + ('%02d' % i) + '.npy')  #
             os.remove(path)

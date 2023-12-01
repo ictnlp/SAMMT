@@ -75,5 +75,3 @@ cmd="fairseq-generate data-bin/$data_dir
 
 cmd=${cmd}" | tee "${output}
 eval $cmd
-
-python3 rerank.py $model_dir/hypo.txt $model_dir/hypo.sorted
