@@ -171,10 +171,10 @@ def collate(
         "net_input": {
             "src_tokens": src_tokens,
             "src_lengths": src_lengths,
-            "synth_imgs_list": synth_imgs_list,  #
-            "synth_masks_list": synth_masks_list,  #
-            "authe_imgs_list": authe_imgs_list,  #
-            "authe_masks_list": authe_masks_list,  #
+            "synth_imgs_list": synth_imgs_list, 
+            "synth_masks_list": synth_masks_list, 
+            "authe_imgs_list": authe_imgs_list, 
+            "authe_masks_list": authe_masks_list, 
         },
         "target": target,
     }
@@ -231,7 +231,8 @@ class ImageLanguagePairDataset(FairseqDataset):
         src (torch.utils.data.Dataset): source dataset to wrap
         src_sizes (List[int]): source sentence lengths
         src_dict (~fairseq.data.Dictionary): source vocabulary
-        imgs (ImageDataset): list for image dataset
+        synth_imgs (ImageDataset): list for synthetic image dataset
+        authe_imgs (ImageDataset): list for authentic image dataset
         tgt (torch.utils.data.Dataset, optional): target dataset to wrap
         tgt_sizes (List[int], optional): target sentence lengths
         tgt_dict (~fairseq.data.Dictionary, optional): target vocabulary
@@ -268,9 +269,9 @@ class ImageLanguagePairDataset(FairseqDataset):
             src,
             src_sizes,
             src_dict,
-            synth_imgs,  # image_multimodal_translation R160
-            authe_imgs, # diffusion_image_multimodal_translation R160
-            split,
+            synth_imgs, 
+            authe_imgs, 
+            split, 
             tgt=None,
             tgt_sizes=None,
             tgt_dict=None,
@@ -359,8 +360,8 @@ class ImageLanguagePairDataset(FairseqDataset):
         else:
             self.buckets = None
         self.pad_to_multiple = pad_to_multiple
-        self.synth_imgs = synth_imgs  # extra code
-        self.authe_imgs = authe_imgs  # extra code
+        self.synth_imgs = synth_imgs
+        self.authe_imgs = authe_imgs 
 
     def get_batch_shapes(self):
         return self.buckets
@@ -369,11 +370,11 @@ class ImageLanguagePairDataset(FairseqDataset):
         tgt_item = self.tgt[index] if self.tgt is not None else None
         src_item = self.src[index]
 
-        syn_img_item = [i[index][0] for i in self.synth_imgs]  # list for image data(image feature)
-        syn_mask_item = [i[index][1] for i in self.synth_imgs]  # list for image mask data
+        syn_img_item = [i[index][0] for i in self.synth_imgs]  # list for synthetic image data
+        syn_mask_item = [i[index][1] for i in self.synth_imgs]  # list for synthetic image mask data
 
-        auth_img_item = [i[index][0] for i in self.authe_imgs]  # list for diffusion image data(diffusion image feature)
-        auth_mask_item = [i[index][1] for i in self.authe_imgs]  # list for diffusion image mask data
+        auth_img_item = [i[index][0] for i in self.authe_imgs]  # list for authentic image data
+        auth_mask_item = [i[index][1] for i in self.authe_imgs]  # list for authentic image mask data
 
         # Append EOS to end of tgt sentence if it does not have an EOS and remove
         # EOS from end of src sentence if it exists. This is useful when we use
@@ -439,6 +440,8 @@ class ImageLanguagePairDataset(FairseqDataset):
                     lengths of each source sentence of shape `(bsz)`
                   - `synth_imgs_list` (List): a list for LongTensor, a 3D Tensor of image
                   - `synth_img_masks_list` (List): a list for LongTensor, a 2D Tensor of image_mask or None
+                  - `authe_imgs_list` (List): a list for LongTensor, a 3D Tensor of image
+                  - `authe_img_masks_list` (List): a list for LongTensor, a 2D Tensor of image_mask or None
                   - `prev_output_tokens` (LongTensor): a padded 2D Tensor of
                     tokens in the target sentence, shifted right by one
                     position for teacher forcing, of shape `(bsz, tgt_len)`.

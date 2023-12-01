@@ -40,8 +40,8 @@ def load_langpair_dataset(
         left_pad_target,
         max_source_positions,
         max_target_positions,
-        synth_feat_path_list,  # extra image mmt parameter
-        authe_feat_path_list, # extra diffusion image mmt parameter
+        synth_feat_path_list, 
+        authe_feat_path_list,
         prepend_bos=False,
         load_alignments=False,
         truncate_source=False,
@@ -265,6 +265,7 @@ class ImageMMTTask(LegacyFairseqTask):
                             help='image features length')
         parser.add_argument('--image-feat-dim', nargs='+', type=int,
                             help='image features dimension')
+
 
     def __init__(self, args, src_dict, tgt_dict):
         super().__init__(args)

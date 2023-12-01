@@ -6,7 +6,6 @@
 
 from fairseq import metrics, utils
 from fairseq.criterions import FairseqCriterion, register_criterion
-from fairseq.models.fairseq_encoder import EncoderOut
 
 import math
 import torch
@@ -35,7 +34,6 @@ def cost(x, y):
     len1 = x.size(-2)
     len2 = y.size(-2)
     dim = x.size(-1)
-
     bsz = x.size(0)
     tx = x.unsqueeze(dim=-2).expand(bsz, len1, len2, dim)
     ty = y.unsqueeze(dim=-3).expand(bsz, len1, len2, dim)

@@ -39,15 +39,16 @@ multi30k-dataset
 conda activate stable
 python train_stable_diffusion_step50.py train
 ```
-* args choices=['train','valid','test', 'test1', 'test2']
+script parameters:
+* dataset: $1: choices=['train','valid','test', 'test1', 'test2']
 ## Extract Image Feature
 ```
 conda activate sammt
 python image_process.py train synth
 ```
-arguments:
-* $1: choices=['train','valid','test', 'test1', 'test2']
-* $2: choices=['synth','authe']
+script parameters:
+* dataset:$1: choices=['train','valid','test', 'test1', 'test2']
+* synthetic or authentic images: $2: choices=['synth','authe']
 ## Train and Test
 ### 1. Preprocess
 ```
@@ -60,12 +61,13 @@ bash train_mmt.sh
 ```
 ### 3. Test
 ```
-# bash translate_mmt.sh $1 $2
-bash translate_mmt.sh clip test
+# bash translate_mmt.sh $1 $2 $3
+bash translate_mmt.sh clip test synth
 ```
 script parameters:
-* $1: choices=['clip']
-* $2: choices=['test', 'test1', 'test2']
+* image feature: $1: choices=['clip']
+* test set: $2: choices=['test', 'test1', 'test2']
+* inference with synthetic or authentic images: $3: choices=['synth', 'authe']
 
 ## Acknowledgements
 This project is built on several open-source repositories/codebases, including:

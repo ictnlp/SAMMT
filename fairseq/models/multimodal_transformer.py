@@ -41,34 +41,27 @@ class FeedForwardNet(
         self.args = args
         self.dropout = 0.5
         self.hidden_size = 1024
-        self.img_dim = 2048
-        for i in args.image_feat_dim:
-            image_feat_dim = i
-        for j in args.image_feat_len:
-            image_feat_len = j
-        self.projectdim = nn.Sequential(
-            Linear(image_feat_dim, self.hidden_size),
+        self.projectlen = nn.Sequential(
+            Linear(args.image_feat_len, self.hidden_size),
             nn.ReLU(),
             nn.Dropout(0.5),
-            Linear(self.hidden_size, image_feat_dim),
+            Linear(self.hidden_size, args.image_feat_len),
             nn.Dropout(0.5),
         )
-        self.projectlen = nn.Sequential(
-            Linear(image_feat_len, self.hidden_size),
+        self.projectdim = nn.Sequential(
+            Linear(args.image_feat_dim, self.hidden_size),
             nn.ReLU(),
             nn.Dropout(self.dropout),
-            Linear(self.hidden_size, image_feat_len),
+            Linear(self.hidden_size, args.image_feat_dim),
             nn.Dropout(self.dropout),
         )
 
     def forward(self, x):
         '''
         This is the feed forwardnet work that encodes the image representaion.
-        x: image features: [batch, image_feat_len, image_feat_dim]
-        return: (batch, image_feat_len, image_feat_dim)
         '''
-        x = self.projectdim(x.view(x.size(-1), -1, x.size(0)))
         x = self.projectlen(x.view(x.size(-1), -1, x.size(0)))
+        x = self.projectdim(x.view(x.size(-1), -1, x.size(0)))
         return x
 
 
@@ -79,11 +72,8 @@ class ImageEncoder(
         self.args = args
         self.dropout = 0.5
         self.hidden_size = 1024
-        self.img_dim = 2048
-        for i in args.image_feat_len:
-            image_feat_len = i
         self.project = nn.Sequential(
-            Linear(image_feat_len, self.hidden_size),
+            Linear(args.image_feat_dim, self.hidden_size),
             nn.ReLU(),
             nn.Dropout(self.dropout),
             Linear(self.hidden_size, args.encoder_embed_dim),
@@ -93,11 +83,9 @@ class ImageEncoder(
     def forward(self, x):
         '''
         This is an image encoder that maps the dimension of image representation into that of text.
-        x: image features: [batch, image_feat_len, image_feat_dim]
-        return: (batch, image_feat_len, encoder_embed_dim)
         '''
         x = self.project(x)
-        return x  # (batch, 1, 128)
+        return x
 
 @register_model("multimodal_transformer")
 class TransformerModel(FairseqEncoderDecoderModel):
@@ -247,7 +235,7 @@ class TransformerModel(FairseqEncoderDecoderModel):
         parser.add_argument('--quant-noise-scalar', type=float, metavar='D', default=0,
                             help='scalar quantization noise and scalar quantization at training time')
 
-        # args for image MMT
+        # args for MMT
         parser.add_argument('--image-dropout', type=float, default=0.1,
                             help='image feat dropout before Mutlimodal Transformer')
         parser.add_argument('--image-pre-norm', action='store_true', default=False,
@@ -497,9 +485,7 @@ class TransformerEncoder(FairseqEncoder):
         image = self.image_pre_norm_module(fuse_img_feat)
         image = self.image_dropout_module(image)
         side_img_feat = self.image_dropout_module(side_img_feat)
-        image = image.transpose(0, 1)
         image = image_encoder(image)
-        image = image.transpose(0, 1)
         return image
 
     def build_encoder_layer(self, args):

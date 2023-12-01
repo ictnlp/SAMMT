@@ -3,6 +3,7 @@ set -e
 
 _image_feat=$1
 who=$2
+type=$3
 
 # set device
 gpu=0
@@ -18,7 +19,7 @@ image_feat=$_image_feat
 length_penalty=0.8
 
 # set tag
-model_dir_tag=$image_feat/11290150_0.5klmulti_32_sd_ran0+0.1beforeimgotlossvishal_release
+model_dir_tag=$image_feat/12011650_0.5klmulti_32_sd_ran0+0.1beforeimgotlossvishal_release
 
 if [ $task == "multi30k-en2de" ]; then
 	tgt_lang=de
@@ -34,8 +35,13 @@ elif [ $task == 'msctd' ]; then
         	data_dir=msctd.en-de
 fi
 
-if [ $image_feat == "clip" ]; then
+if [ $type == "synth" ]; then
 	synth_feat_path=data/$image_feat/synth_
+                 authe_feat_path=data/$image_feat/synth_
+	image_feat_dim=1
+                 image_feat_len=512
+elif [ $type == "authe" ]; then
+	synth_feat_path=data/$image_feat/authe_
                  authe_feat_path=data/$image_feat/authe_
 	image_feat_dim=1
                  image_feat_len=512
@@ -75,3 +81,5 @@ cmd="fairseq-generate data-bin/$data_dir
 
 cmd=${cmd}" | tee "${output}
 eval $cmd
+
+python3 rerank.py $model_dir/hypo.txt $model_dir/hypo.sorted
