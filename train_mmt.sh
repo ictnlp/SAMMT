@@ -46,8 +46,8 @@ image_dropout=0.1
 if [ $image_feat == "clip" ]; then
 	synth_feat_path=data/$image_feat/synth_
                  authe_feat_path=data/$image_feat/authe_
-	image_feat_dim=1
-                 image_feat_len=512
+	image_feat_len=1
+                 image_feat_dim=512
 fi
 
 cp ${BASH_SOURCE[0]} $save_dir/train.sh

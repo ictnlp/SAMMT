@@ -42,22 +42,22 @@ class FeedForwardNet(
         self.dropout = 0.5
         self.hidden_size = 1024
         self.img_dim = 2048
-        for i in args.image_feat_dim:
-            image_feat_dim = i
-        for j in args.image_feat_len:
-            image_feat_len = j
-        self.projectdim = nn.Sequential(
-            Linear(image_feat_dim, self.hidden_size),
-            nn.ReLU(),
-            nn.Dropout(0.5),
-            Linear(self.hidden_size, image_feat_dim),
-            nn.Dropout(0.5),
-        )
+        for i in args.image_feat_len:
+            image_feat_len = i
+        for j in args.image_feat_dim:
+            image_feat_dim = j
         self.projectlen = nn.Sequential(
             Linear(image_feat_len, self.hidden_size),
             nn.ReLU(),
-            nn.Dropout(self.dropout),
+            nn.Dropout(0.5),
             Linear(self.hidden_size, image_feat_len),
+            nn.Dropout(0.5),
+        )
+        self.projectdim = nn.Sequential(
+            Linear(image_feat_dim, self.hidden_size),
+            nn.ReLU(),
+            nn.Dropout(self.dropout),
+            Linear(self.hidden_size, image_feat_dim),
             nn.Dropout(self.dropout),
         )
 
@@ -67,8 +67,8 @@ class FeedForwardNet(
         x: image features: [batch, image_feat_len, image_feat_dim]
         return: (batch, image_feat_len, image_feat_dim)
         '''
-        x = self.projectdim(x.view(x.size(-1), -1, x.size(0)))
         x = self.projectlen(x.view(x.size(-1), -1, x.size(0)))
+        x = self.projectdim(x.view(x.size(-1), -1, x.size(0)))
         return x
 
 
@@ -80,10 +80,10 @@ class ImageEncoder(
         self.dropout = 0.5
         self.hidden_size = 1024
         self.img_dim = 2048
-        for i in args.image_feat_len:
-            image_feat_len = i
+        for i in args.image_feat_dim:
+            image_feat_dim = i
         self.project = nn.Sequential(
-            Linear(image_feat_len, self.hidden_size),
+            Linear(image_feat_dim, self.hidden_size),
             nn.ReLU(),
             nn.Dropout(self.dropout),
             Linear(self.hidden_size, args.encoder_embed_dim),
