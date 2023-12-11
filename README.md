@@ -49,6 +49,7 @@ python image_process.py train synth
 script parameters:
 * dataset:$1: choices=['train','valid','test', 'test1', 'test2']
 * synthetic or authentic images: $2: choices=['synth','authe']
+
 The pre-extracted image features can also be downloaded [here](https://drive.google.com/file/d/1Wwm0Q3IjV5xNmnEEgofMyIonW549UyGQ/view).
 ## Train and Test
 ### 1. Preprocess
